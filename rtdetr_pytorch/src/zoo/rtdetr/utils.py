@@ -36,9 +36,11 @@ def deformable_attention_core_func(value, value_spatial_shapes, sampling_locatio
         # N_, H_*W_, M_, D_ -> N_, H_*W_, M_*D_ -> N_, M_*D_, H_*W_ -> N_*M_, D_, H_, W_
         value_l_ = value_list[level].flatten(2).permute(
             0, 2, 1).reshape(bs * n_head, c, h, w)
+        # value_l_ shape: (batch_size * num_heads, c, H_, W_)
         # N_, Lq_, M_, P_, 2 -> N_, M_, Lq_, P_, 2 -> N_*M_, Lq_, P_, 2
         sampling_grid_l_ = sampling_grids[:, :, :, level].permute(
             0, 2, 1, 3, 4).flatten(0, 1)
+        # sampling_grid_l_ shape: (batch_size * num_heads, len_query, num_points, 2)
         # N_*M_, D_, Lq_, P_
         sampling_value_l_ = F.grid_sample(
             value_l_,
@@ -46,6 +48,8 @@ def deformable_attention_core_func(value, value_spatial_shapes, sampling_locatio
             mode='bilinear',
             padding_mode='zeros',
             align_corners=False)
+        # for each channel (batch_size * num_heads, :, H_, W_) in value_l_, the grid of (batch_size * num_heads, len_query, num_points) take samples
+        # on it, and generates outputs of shape (batch_size * num_heads, c, len_query, num_points)
         sampling_value_list.append(sampling_value_l_)
     # (N_, Lq_, M_, L_, P_) -> (N_, M_, Lq_, L_, P_) -> (N_*M_, 1, Lq_, L_*P_)
     attention_weights = attention_weights.permute(0, 2, 1, 3, 4).reshape(
@@ -53,7 +57,8 @@ def deformable_attention_core_func(value, value_spatial_shapes, sampling_locatio
     output = (torch.stack(
         sampling_value_list, dim=-2).flatten(-2) *
               attention_weights).sum(-1).reshape(bs, n_head * c, Len_q)
-
+    # after stack [bs * n_head, c, Len_q, n_levels* n_points]; attention weight: [bs * n_head, 1, Len_q, n_levels * n_points] 
+    # output: [bs, n_head * c, Len_q]
     return output.permute(0, 2, 1)
 
 
