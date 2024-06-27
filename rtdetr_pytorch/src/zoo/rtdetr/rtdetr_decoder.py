@@ -93,7 +93,7 @@ class MSDeformableAttention(nn.Module):
         """
         Args:
             query (Tensor): [bs, query_length, C]
-            reference_points (Tensor): [bs, query_length, n_levels, 2], range in [0, 1], top-left (0,0),
+            reference_points (Tensor): [bs, query_length, n_levels, 2], range in [0, 1], top-left (0,0), （1 point for each level for every query)
                 bottom-right (1, 1), including padding area
             value (Tensor): [bs, value_length, C]
             value_spatial_shapes (List): [n_levels, 2], [(H_0, W_0), (H_1, W_1), ..., (H_{L-1}, W_{L-1})]
