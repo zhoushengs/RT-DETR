@@ -400,7 +400,7 @@ class RTDETRTransformer(nn.Module):
 
         in_channels = feat_channels[-1]
 
-        for _ in range(self.num_levels - len(feat_channels)):
+        for _ in range(self.num_levels - len(feat_channels)): # feat_channels=[512, 1024, 2048],
             self.input_proj.append(
                 nn.Sequential(OrderedDict([
                     ('conv', nn.Conv2d(in_channels, self.hidden_dim, 3, 2, padding=1, bias=False)),
@@ -410,7 +410,7 @@ class RTDETRTransformer(nn.Module):
             in_channels = self.hidden_dim
 
     def _get_encoder_input(self, feats):
-        # get projection features
+        # get projection features, feat_channels=[512, 1024, 2048],
         proj_feats = [self.input_proj[i](feat) for i, feat in enumerate(feats)]
         if self.num_levels > len(proj_feats):
             len_srcs = len(proj_feats)
