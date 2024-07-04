@@ -323,7 +323,7 @@ class RTDETRTransformer(nn.Module):
         self.eval_spatial_size = eval_spatial_size
         self.aux_loss = aux_loss
 
-        # backbone feature projection
+        # backbone feature projection  # project each level's output from channel of output to hidden dimension. 
         self._build_input_proj_layer(feat_channels)
 
         # Transformer module
