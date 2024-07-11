@@ -519,6 +519,7 @@ class RTDETRTransformer(nn.Module):
 
         # input projection and embedding
         (memory, spatial_shapes, level_start_index) = self._get_encoder_input(feats)
+        # projected features from each level and hidden dim as channel dimension, h w for each level and the index of each level.
         
         # prepare denoising training
         if self.training and self.num_denoising > 0:
